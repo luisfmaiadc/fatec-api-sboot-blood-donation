@@ -36,4 +36,10 @@ public class Transfusao {
     private Enfermeiro enfermeiro;
 
     private LocalDateTime dataTransfusao = LocalDateTime.now();
+
+    public Transfusao(Paciente paciente, Doacao doacao, Enfermeiro enfermeiro) {
+        this.paciente = paciente;
+        this.doacao = doacao;
+        this.enfermeiro = enfermeiro;
+    }
 }

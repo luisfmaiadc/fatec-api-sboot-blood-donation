@@ -48,7 +48,7 @@ CREATE TABLE transfusao (
   id_doacao INT NOT NULL,
   id_paciente INT NOT NULL,
   id_enfermeiro INT NOT NULL,
-  data_transfucao TIMESTAMP NOT NULL,
+  data_transfusao TIMESTAMP NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (id_doacao) REFERENCES doacao(id),
   FOREIGN KEY (id_paciente) REFERENCES paciente(id),

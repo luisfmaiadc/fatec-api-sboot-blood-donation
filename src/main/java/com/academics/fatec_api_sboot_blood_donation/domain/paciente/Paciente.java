@@ -33,4 +33,8 @@ public class Paciente {
 
     @OneToMany(mappedBy = "paciente")
     private List<Transfusao> transfusoes;
+
+    public String getNomePacienteCompleto() {
+        return getNome() + " " + getSobrenome();
+    }
 }
