@@ -26,7 +26,7 @@ public class Paciente {
     private String sobrenome;
     private String genero;
     private LocalDate dataNascimento;
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TipoSanguineoConverter.class)
     private TipoSanguineo tipoSanguineo;
     private String email;
     private String telefone;

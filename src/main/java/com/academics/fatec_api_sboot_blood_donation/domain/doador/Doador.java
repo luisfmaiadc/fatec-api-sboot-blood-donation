@@ -2,6 +2,7 @@ package com.academics.fatec_api_sboot_blood_donation.domain.doador;
 
 import com.academics.fatec_api_sboot_blood_donation.domain.doacao.Doacao;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
+import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineoConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class Doador {
     private String sobrenome;
     private String genero;
     private LocalDate dataNascimento;
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TipoSanguineoConverter.class)
     private TipoSanguineo tipoSanguineo;
     private LocalDate ultimaDoacao;
     private String email;
@@ -35,4 +36,8 @@ public class Doador {
 
     @OneToMany(mappedBy = "doador")
     private List<Doacao> doacoes;
+
+    public String getNomeDoadorCompleto() {
+        return getNome() + " " + getSobrenome();
+    }
 }

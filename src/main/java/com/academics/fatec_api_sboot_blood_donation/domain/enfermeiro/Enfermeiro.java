@@ -26,7 +26,6 @@ public class Enfermeiro {
     private String nome;
     private String sobrenome;
     private String genero;
-    private LocalDate dataNascimento;
     private String email;
     private String telefone;
 
@@ -35,4 +34,8 @@ public class Enfermeiro {
 
     @OneToMany(mappedBy = "enfermeiro")
     private List<Transfusao> transfusoes;
+
+    public String getNomeEnfermeiroCompleto() {
+        return getNome() + " " + getSobrenome();
+    }
 }

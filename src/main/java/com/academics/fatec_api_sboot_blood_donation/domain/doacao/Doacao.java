@@ -31,4 +31,9 @@ public class Doacao {
     private Enfermeiro enfermeiro;
 
     private LocalDateTime dataDoacao = LocalDateTime.now();
+
+    public Doacao(Doador doador, Enfermeiro enfermeiro) {
+        this.doador = doador;
+        this.enfermeiro = enfermeiro;
+    }
 }
