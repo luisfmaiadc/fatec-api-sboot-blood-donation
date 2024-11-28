@@ -37,4 +37,14 @@ public class Paciente {
     public String getNomePacienteCompleto() {
         return getNome() + " " + getSobrenome();
     }
+
+    public Paciente(PacienteRequest request) {
+        this.nome = request.nome();
+        this.sobrenome = request.sobrenome();
+        this.genero = request.genero();
+        this.dataNascimento = request.dataNascimento();
+        this.tipoSanguineo = request.tipoSanguineo();
+        this.email = request.email();
+        this.telefone = request.telefone();
+    }
 }
