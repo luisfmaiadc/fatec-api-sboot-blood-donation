@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 
 @Service
 public class DoacaoService {
@@ -32,6 +33,7 @@ public class DoacaoService {
         Doador doador = doadorRepository.getReferenceById(request.idDoador());
         Enfermeiro enfermeiro = enfermeiroRepository.getReferenceById(request.idEnfermeiro());
         Doacao doacao = new Doacao(doador, enfermeiro);
+        doador.setUltimaDoacao(LocalDate.now());
         doacaoRepository.save(doacao);
         URI uri = uriComponentsBuilder.path("/doacao/{id}").buildAndExpand(doacao.getId()).toUri();
         return ResponseEntity.created(uri).body(new DoacaoResponse(doacao));

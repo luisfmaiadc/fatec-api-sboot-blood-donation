@@ -40,4 +40,14 @@ public class Doador {
     public String getNomeDoadorCompleto() {
         return getNome() + " " + getSobrenome();
     }
+
+    public Doador(DoadorRequest request) {
+        this.nome = request.nome();
+        this.sobrenome = request.sobrenome();
+        this.genero = request.genero();
+        this.dataNascimento = request.dataNascimento();
+        this.tipoSanguineo = request.tipoSanguineo();
+        this.email = request.email();
+        this.telefone = request.telefone();
+    }
 }
