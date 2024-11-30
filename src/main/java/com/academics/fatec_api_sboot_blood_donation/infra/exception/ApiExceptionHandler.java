@@ -26,6 +26,11 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
+    @ExceptionHandler(AgeException.class)
+    public ResponseEntity hangleNotOldEnough(AgeException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
     private record DadosErro(String campo, String mensagem) {
         DadosErro(FieldError fieldError) {
             this(fieldError.getField(), fieldError.getDefaultMessage());

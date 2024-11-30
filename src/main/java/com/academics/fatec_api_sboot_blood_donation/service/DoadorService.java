@@ -3,9 +3,12 @@ package com.academics.fatec_api_sboot_blood_donation.service;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.Doador;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.DoadorRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.DoadorResponse;
+import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
 import com.academics.fatec_api_sboot_blood_donation.infra.exception.AgeException;
 import com.academics.fatec_api_sboot_blood_donation.repository.DoadorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -13,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 
 @Service
 public class DoadorService {
@@ -33,5 +37,10 @@ public class DoadorService {
         if (idade < 16) {
             throw new AgeException("Idade insuficiente para se tornar doador.");
         }
+    }
+
+    public ResponseEntity<List<DoadorResponse>> pesquisarPorTipoSanguineo(TipoSanguineo tipoSanguineo) {
+        List<DoadorResponse> doadorList = doadorRepository.findByTipoSanguineo(tipoSanguineo).stream().map(DoadorResponse::new).toList();
+        return ResponseEntity.ok(doadorList);
     }
 }
