@@ -7,10 +7,7 @@ import com.academics.fatec_api_sboot_blood_donation.domain.doador.UpdateDoadorRe
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
 import com.academics.fatec_api_sboot_blood_donation.infra.exception.AgeException;
 import com.academics.fatec_api_sboot_blood_donation.repository.DoadorRepository;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
