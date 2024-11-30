@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @AllArgsConstructor
@@ -31,6 +32,7 @@ public class Doador {
     @Convert(converter = TipoSanguineoConverter.class)
     private TipoSanguineo tipoSanguineo;
     private LocalDate ultimaDoacao;
+    private Boolean ativo = Boolean.TRUE;
     private String email;
     private String telefone;
 
@@ -49,5 +51,39 @@ public class Doador {
         this.tipoSanguineo = request.tipoSanguineo();
         this.email = request.email();
         this.telefone = request.telefone();
+    }
+
+    public void atualizarDoador(UpdateDoadorRequest request) {
+        if (request.nome() != null && !request.nome().trim().isEmpty()) {
+            this.nome = request.nome();
+        }
+
+        if (request.sobrenome() != null && !request.sobrenome().trim().isEmpty()) {
+            this.sobrenome = request.sobrenome();
+        }
+
+        if (request.genero() != null && !request.genero().trim().isEmpty()) {
+            this.genero = request.genero();
+        }
+
+        if (request.dataNascimento() != null && Period.between(request.dataNascimento(), LocalDate.now()).getYears() >= 16) {
+            this.dataNascimento = request.dataNascimento();
+        }
+
+        if (request.tipoSanguineo() != null) {
+            this.tipoSanguineo = request.tipoSanguineo();
+        }
+
+        if (request.ativo() != null) {
+            this.ativo = request.ativo();
+        }
+
+        if (request.email() != null && !request.email().trim().isEmpty()) {
+            this.email = request.email();
+        }
+
+        if (request.telefone() != null && !request.telefone().trim().isEmpty()) {
+            this.telefone = request.telefone();
+        }
     }
 }

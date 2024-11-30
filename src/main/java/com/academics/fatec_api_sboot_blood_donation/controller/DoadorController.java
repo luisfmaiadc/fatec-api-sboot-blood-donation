@@ -2,6 +2,7 @@ package com.academics.fatec_api_sboot_blood_donation.controller;
 
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.DoadorRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.DoadorResponse;
+import com.academics.fatec_api_sboot_blood_donation.domain.doador.UpdateDoadorRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
 import com.academics.fatec_api_sboot_blood_donation.service.DoadorService;
 import jakarta.validation.Valid;
@@ -29,5 +30,17 @@ public class DoadorController {
     @GetMapping
     public ResponseEntity<List<DoadorResponse>> pesquisarPorTipoSanguineo(@RequestParam TipoSanguineo tipoSanguineo) {
         return doadorService.pesquisarPorTipoSanguineo(tipoSanguineo);
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity desativarDoador(@PathVariable Integer id) {
+        return doadorService.desativarDoador(id);
+    }
+
+    @PutMapping
+    @Transactional
+    public ResponseEntity<DoadorResponse> atualizarDoador(@RequestBody @Valid UpdateDoadorRequest request) {
+        return doadorService.atualizarDoador(request);
     }
 }

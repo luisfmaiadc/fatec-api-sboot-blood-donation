@@ -3,9 +3,11 @@ package com.academics.fatec_api_sboot_blood_donation.service;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.Doador;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.DoadorRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.DoadorResponse;
+import com.academics.fatec_api_sboot_blood_donation.domain.doador.UpdateDoadorRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
 import com.academics.fatec_api_sboot_blood_donation.infra.exception.AgeException;
 import com.academics.fatec_api_sboot_blood_donation.repository.DoadorRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,5 +44,18 @@ public class DoadorService {
     public ResponseEntity<List<DoadorResponse>> pesquisarPorTipoSanguineo(TipoSanguineo tipoSanguineo) {
         List<DoadorResponse> doadorList = doadorRepository.findByTipoSanguineo(tipoSanguineo).stream().map(DoadorResponse::new).toList();
         return ResponseEntity.ok(doadorList);
+    }
+
+    public ResponseEntity desativarDoador(Integer id) {
+        Doador doador = doadorRepository.getReferenceById(id);
+        doador.setAtivo(Boolean.FALSE);
+        return ResponseEntity.noContent().build();
+    }
+
+    public ResponseEntity<DoadorResponse> atualizarDoador(UpdateDoadorRequest request) {
+        Doador doador = doadorRepository.getReferenceById(request.idDoador());
+        doador.atualizarDoador(request);
+        doadorRepository.save(doador);
+        return ResponseEntity.ok(new DoadorResponse(doador));
     }
 }

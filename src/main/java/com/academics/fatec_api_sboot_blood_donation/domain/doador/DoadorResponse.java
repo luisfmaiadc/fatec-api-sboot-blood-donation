@@ -7,11 +7,11 @@ import java.time.LocalDate;
 
 public record DoadorResponse(@NotBlank String nomeCompleto, @NotBlank String genero,
                              @NotNull LocalDate dataNascimento, @NotBlank String tipoSanguineo,
-                             @NotBlank String email, @NotBlank String telefone, LocalDate ultimaDoacao) {
+                             @NotBlank String email, @NotBlank String telefone, LocalDate ultimaDoacao, @NotNull Boolean ativo) {
 
     public DoadorResponse(Doador doador) {
         this(doador.getNomeDoadorCompleto(), doador.getGenero(), doador.getDataNascimento(),
                 doador.getTipoSanguineo().getDescricao(), doador.getEmail(), doador.getTelefone(),
-                doador.getUltimaDoacao());
+                doador.getUltimaDoacao(), doador.getAtivo());
     }
 }

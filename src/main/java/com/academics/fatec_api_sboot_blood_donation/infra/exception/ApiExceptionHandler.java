@@ -22,12 +22,17 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(IncompatibleBloodTypeException.class)
-    public ResponseEntity handleUnavailable(IncompatibleBloodTypeException ex) {
+    public ResponseEntity handleIncompatibleBloodType(IncompatibleBloodTypeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     @ExceptionHandler(AgeException.class)
     public ResponseEntity hangleNotOldEnough(AgeException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InactiveDonor.class)
+    public ResponseEntity handleInactiveDonor(InactiveDonor ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 

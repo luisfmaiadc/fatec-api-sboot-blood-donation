@@ -18,6 +18,7 @@ CREATE TABLE doador (
   data_nascimento DATE NOT NULL,
   tipo_sanguineo VARCHAR(3) NOT NULL,
   ultima_doacao DATE,
+  ativo TINYINT NOT NULL,
   email VARCHAR(100) NOT NULL,
   telefone VARCHAR(11) NOT NULL,
   PRIMARY KEY (id)

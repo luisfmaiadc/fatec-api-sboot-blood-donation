@@ -5,6 +5,7 @@ import com.academics.fatec_api_sboot_blood_donation.domain.doacao.DoacaoRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.doacao.DoacaoResponse;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.Doador;
 import com.academics.fatec_api_sboot_blood_donation.domain.enfermeiro.Enfermeiro;
+import com.academics.fatec_api_sboot_blood_donation.infra.exception.InactiveDonor;
 import com.academics.fatec_api_sboot_blood_donation.repository.DoacaoRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.DoadorRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.EnfermeiroRepository;
@@ -31,11 +32,18 @@ public class DoacaoService {
 
     public ResponseEntity cadastrarDoacao(@Valid DoacaoRequest request, UriComponentsBuilder uriComponentsBuilder) {
         Doador doador = doadorRepository.getReferenceById(request.idDoador());
+        verificarDoadorAtivo(doador);
         Enfermeiro enfermeiro = enfermeiroRepository.getReferenceById(request.idEnfermeiro());
         Doacao doacao = new Doacao(doador, enfermeiro);
         doador.setUltimaDoacao(LocalDate.now());
         doacaoRepository.save(doacao);
         URI uri = uriComponentsBuilder.path("/doacao/{id}").buildAndExpand(doacao.getId()).toUri();
         return ResponseEntity.created(uri).body(new DoacaoResponse(doacao));
+    }
+
+    private void verificarDoadorAtivo(Doador doador) {
+        if (!doador.getAtivo()) {
+            throw new InactiveDonor("Cadastro de doador informado não está disponível para novas doações.");
+        }
     }
 }
