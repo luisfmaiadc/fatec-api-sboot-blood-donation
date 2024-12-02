@@ -41,7 +41,7 @@ public class DoacaoService {
         return ResponseEntity.created(uri).body(new DoacaoResponse(doacao));
     }
 
-    private void verificarDoadorAtivo(Doador doador) {
+    public void verificarDoadorAtivo(Doador doador) {
         if (!doador.getAtivo()) {
             throw new InactiveDonor("Cadastro de doador informado não está disponível para novas doações.");
         }
