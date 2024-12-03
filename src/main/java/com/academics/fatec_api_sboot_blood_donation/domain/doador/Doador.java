@@ -3,6 +3,7 @@ package com.academics.fatec_api_sboot_blood_donation.domain.doador;
 import com.academics.fatec_api_sboot_blood_donation.domain.doacao.Doacao;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineoConverter;
+import com.academics.fatec_api_sboot_blood_donation.infra.exception.AgeException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -66,8 +67,12 @@ public class Doador {
             this.genero = request.genero();
         }
 
-        if (request.dataNascimento() != null && Period.between(request.dataNascimento(), LocalDate.now()).getYears() >= 16) {
-            this.dataNascimento = request.dataNascimento();
+        if (request.dataNascimento() != null) {
+            if (Period.between(request.dataNascimento(), LocalDate.now()).getYears() >= 16) {
+                this.dataNascimento = request.dataNascimento();
+            } else {
+                throw new AgeException("Nova idade fornecida menor que 16 anos.");
+            }
         }
 
         if (request.tipoSanguineo() != null) {
