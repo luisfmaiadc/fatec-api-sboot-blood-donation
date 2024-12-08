@@ -31,7 +31,7 @@ public class DoadorService {
         return ResponseEntity.created(uri).body(new DoadorResponse(doador));
     }
 
-    private void verificarIdadeMinima(LocalDate dataNascimento) {
+    public void verificarIdadeMinima(LocalDate dataNascimento) {
         int idade = Period.between(dataNascimento, LocalDate.now()).getYears();
         if (idade < 16) {
             throw new AgeException("Idade insuficiente para se tornar doador.");

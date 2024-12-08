@@ -11,7 +11,8 @@ public record DoadorResponse(@NotBlank String nomeCompleto, @NotBlank String gen
 
     public DoadorResponse(Doador doador) {
         this(doador.getNomeDoadorCompleto(), doador.getGenero(), doador.getDataNascimento(),
-                doador.getTipoSanguineo().getDescricao(), doador.getEmail(), doador.getTelefone(),
+                doador.getTipoSanguineo() != null ? doador.getTipoSanguineo().getDescricao() : "Tipo não informado",
+                doador.getEmail(), doador.getTelefone(),
                 doador.getUltimaDoacao(), doador.getAtivo());
     }
 }
