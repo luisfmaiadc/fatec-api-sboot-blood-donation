@@ -11,6 +11,7 @@ public record PacienteResponse(@NotBlank String nomeCompleto, @NotBlank String g
 
     public PacienteResponse(Paciente paciente) {
         this(paciente.getNomePacienteCompleto(), paciente.getGenero(), paciente.getDataNascimento(),
-                paciente.getTipoSanguineo().getDescricao(), paciente.getEmail(), paciente.getTelefone());
+                paciente.getTipoSanguineo() != null ? paciente.getTipoSanguineo().getDescricao() : "Tipo não informado",
+                paciente.getEmail(), paciente.getTelefone());
     }
 }
