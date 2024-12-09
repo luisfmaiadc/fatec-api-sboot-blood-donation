@@ -47,7 +47,7 @@ public class TransfusaoService {
         return ResponseEntity.created(uri).body(new TransfusaoResponse(transfusao));
     }
 
-    private void verificarTipoSanguineo(String tipoSanguineoDoador, String tipoSanguineoPaciente) {
+    public void verificarTipoSanguineo(String tipoSanguineoDoador, String tipoSanguineoPaciente) {
         Map<String, Set<String>> compatibilidadeSanguinea = Map.of(
                 "A+", Set.of("A+", "A-", "O+", "O-"),
                 "A-", Set.of("A-", "O-"),
