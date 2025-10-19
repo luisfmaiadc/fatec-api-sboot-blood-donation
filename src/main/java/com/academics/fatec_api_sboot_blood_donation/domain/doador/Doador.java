@@ -3,7 +3,6 @@ package com.academics.fatec_api_sboot_blood_donation.domain.doador;
 import com.academics.fatec_api_sboot_blood_donation.domain.doacao.Doacao;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineoConverter;
-import com.academics.fatec_api_sboot_blood_donation.infra.exception.AgeException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 
 @AllArgsConstructor
@@ -19,7 +17,7 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@Table(name = "doador")
+@Table(name = "TbDoador")
 public class Doador {
 
     @Id
@@ -28,7 +26,7 @@ public class Doador {
 
     private String nome;
     private String sobrenome;
-    private String genero;
+    private Character genero;
     private LocalDate dataNascimento;
     @Convert(converter = TipoSanguineoConverter.class)
     private TipoSanguineo tipoSanguineo;
@@ -52,43 +50,5 @@ public class Doador {
         this.tipoSanguineo = request.tipoSanguineo();
         this.email = request.email();
         this.telefone = request.telefone();
-    }
-
-    public void atualizarDoador(UpdateDoadorRequest request) {
-        if (request.nome() != null && !request.nome().trim().isEmpty()) {
-            this.nome = request.nome();
-        }
-
-        if (request.sobrenome() != null && !request.sobrenome().trim().isEmpty()) {
-            this.sobrenome = request.sobrenome();
-        }
-
-        if (request.genero() != null && !request.genero().trim().isEmpty()) {
-            this.genero = request.genero();
-        }
-
-        if (request.dataNascimento() != null) {
-            if (Period.between(request.dataNascimento(), LocalDate.now()).getYears() >= 16) {
-                this.dataNascimento = request.dataNascimento();
-            } else {
-                throw new AgeException("Nova idade fornecida menor que 16 anos.");
-            }
-        }
-
-        if (request.tipoSanguineo() != null) {
-            this.tipoSanguineo = request.tipoSanguineo();
-        }
-
-        if (request.ativo() != null) {
-            this.ativo = request.ativo();
-        }
-
-        if (request.email() != null && !request.email().trim().isEmpty()) {
-            this.email = request.email();
-        }
-
-        if (request.telefone() != null && !request.telefone().trim().isEmpty()) {
-            this.telefone = request.telefone();
-        }
     }
 }

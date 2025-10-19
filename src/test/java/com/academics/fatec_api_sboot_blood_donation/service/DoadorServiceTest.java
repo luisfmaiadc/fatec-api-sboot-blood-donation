@@ -2,7 +2,6 @@ package com.academics.fatec_api_sboot_blood_donation.service;
 
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.Doador;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.DoadorRequest;
-import com.academics.fatec_api_sboot_blood_donation.domain.doador.DoadorResponse;
 import com.academics.fatec_api_sboot_blood_donation.domain.doador.UpdateDoadorRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
 import com.academics.fatec_api_sboot_blood_donation.infra.exception.AgeException;
@@ -10,22 +9,16 @@ import com.academics.fatec_api_sboot_blood_donation.repository.DoadorRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo.A_POSITIVO;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 
@@ -38,105 +31,95 @@ class DoadorServiceTest {
     @Mock
     private DoadorRepository doadorRepository;
 
-    @Captor
-    private ArgumentCaptor<Doador> doadorArgumentCaptor;
-
-    @Mock
-    private Doador doador;
-
     @Test
-    void cadastrarDoador() {
-        DoadorRequest request = new DoadorRequest(
+    @DisplayName("Deve cadastrar um doador com sucesso")
+    void cadastrarDoadorCenario1() {
+        var request = new DoadorRequest(
                 "teste",
                 "teste",
-                "F",
+                'F',
                 LocalDate.of(2000, 2, 2),
                 TipoSanguineo.AB_NEGATIVO,
                 "teste@teste.com",
                 "11111111111"
         );
 
-        Doador doador = new Doador(request);
+        when(doadorRepository.save(any(Doador.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        when(doadorRepository.save(doadorArgumentCaptor.capture())).thenReturn(doador);
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+        Doador doadorSalvo = doadorService.cadastrarDoador(request);
 
-        ResponseEntity response = doadorService.cadastrarDoador(request, uriBuilder);
-        then(doadorRepository).should().save(doadorArgumentCaptor.capture());
-        Doador capturedDoador = doadorArgumentCaptor.getValue();
-
-        assertEquals(doador.getNomeDoadorCompleto(), capturedDoador.getNomeDoadorCompleto());
-        assertEquals(HttpStatusCode.valueOf(201), response.getStatusCode());
+        then(doadorRepository).should().save(any(Doador.class));
+        assertThat(doadorSalvo).isNotNull();
+        assertThat(doadorSalvo.getNome()).isEqualTo(request.nome());
+        assertThat(doadorSalvo.getEmail()).isEqualTo(request.email());
     }
 
     @Test
-    @DisplayName("Não lança Exception caso o doador tenha 16 anos ou mais.")
-    void verificarIdadeCorreta() {
-        given(doador.getDataNascimento()).willReturn(LocalDate.now().minusYears(16));
-        assertDoesNotThrow(() -> doadorService.verificarIdadeMinima(doador.getDataNascimento()));
+    @DisplayName("Deve lançar AgeException ao tentar cadastrar doador com menos de 16 anos")
+    void cadastrarDoadorCenario2() {
+        var request = new DoadorRequest(
+                "Menor", "Idade", 'M',
+                LocalDate.now().minusYears(15), // Idade inválida
+                TipoSanguineo.O_POSITIVO, "menor@email.com", "33333333333"
+        );
+
+        assertThatThrownBy(() -> doadorService.cadastrarDoador(request))
+                .isInstanceOf(AgeException.class)
+                .hasMessage("Idade insuficiente para se tornar doador.");
     }
 
     @Test
-    @DisplayName("Lança Exception caso o doador tenha menos de 16 anos")
-    void verificarIdadeIncorreta() {
-        given(doador.getDataNascimento()).willReturn(LocalDate.now().minusYears(15));
-        assertThrows(AgeException.class, () -> doadorService.verificarIdadeMinima(doador.getDataNascimento()));
-    }
-
-    @Test
+    @DisplayName("Deve retornar uma lista de doadores ao pesquisar por tipo sanguíneo")
     void pesquisarPorTipoSanguineo() {
         TipoSanguineo tipoSanguineo = TipoSanguineo.AB_NEGATIVO;
-        List<Doador> doadores = List.of(
-                new Doador(1, "Doador", "1", "F", LocalDate.of(1990, 1, 1), tipoSanguineo, null, true, "email1@teste.com", "11111111111", null),
-                new Doador(2, "Doador", "2", "M", LocalDate.of(1985, 5, 5), tipoSanguineo, null, true, "email2@teste.com", "22222222222" , null)
-        );
-        when(doadorRepository.findByTipoSanguineo(tipoSanguineo)).thenReturn(doadores);
+        var doador1 = new Doador(1, "Doador", "1", 'F', LocalDate.of(1990, 1, 1), tipoSanguineo, null, true, "email1@teste.com", "11111111111", null);
+        var doador2 = new Doador(2, "Doador", "2", 'M', LocalDate.of(1985, 5, 5), tipoSanguineo, null, true, "email2@teste.com", "22222222222", null);
+        List<Doador> doadoresMock = List.of(doador1, doador2);
+        when(doadorRepository.findByTipoSanguineo(tipoSanguineo)).thenReturn(doadoresMock);
 
-        ResponseEntity<List<DoadorResponse>> response = doadorService.pesquisarPorTipoSanguineo(tipoSanguineo);
+        List<Doador> resultado = doadorService.pesquisarPorTipoSanguineo(tipoSanguineo);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
-        assertEquals("Doador 1", response.getBody().get(0).nomeCompleto());
-        assertEquals("Doador 2", response.getBody().get(1).nomeCompleto());
+        assertThat(resultado).isNotNull();
+        assertThat(resultado).hasSize(2);
+        assertThat(resultado).isEqualTo(doadoresMock);
     }
 
     @Test
+    @DisplayName("Deve desativar um doador com sucesso")
     void desativarDoador() {
-        doador.setAtivo(true);
-        when(doadorRepository.getReferenceById(1)).thenReturn(doador);
+        Integer doadorId = 1;
+        var doador = new Doador(doadorId, "Doador", "Ativo", 'M', LocalDate.now().minusYears(20), TipoSanguineo.A_POSITIVO, null, true, "ativo@email.com", "44444444444", null);
+        when(doadorRepository.getReferenceById(doadorId)).thenReturn(doador);
 
-        ResponseEntity response = doadorService.desativarDoador(1);
+        doadorService.desativarDoador(doadorId);
 
-        assertEquals(false, doador.getAtivo());
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        then(doadorRepository).should().getReferenceById(doadorId);
+        assertThat(doador.getAtivo()).isFalse();
     }
 
     @Test
+    @DisplayName("Deve atualizar os dados de um doador com sucesso")
     void atualizarDoador() {
-        UpdateDoadorRequest request = new UpdateDoadorRequest(
-                1,
-                "teste",
+        Integer doadorId = 1;
+        var request = new UpdateDoadorRequest(
+                doadorId,
+                'F',
                 null,
+                TipoSanguineo.B_NEGATIVO,
                 null,
-                null,
-                null,
-                null,
-                null,
+                "novo.email@teste.com",
                 null
         );
 
-        doador.setNome("teste");
-        doador.setTipoSanguineo(A_POSITIVO);
-        when(doadorRepository.getReferenceById(request.idDoador())).thenReturn(doador);
-        when(doadorRepository.save(doadorArgumentCaptor.capture())).thenReturn(doador);
+        var doadorOriginal = new Doador(doadorId, "Nome", "Original", 'M', LocalDate.now().minusYears(30), TipoSanguineo.O_POSITIVO, null, true, "original@email.com", "55555555555", null);
+        when(doadorRepository.getReferenceById(doadorId)).thenReturn(doadorOriginal);
 
-        ResponseEntity response = doadorService.atualizarDoador(request);
-        then(doadorRepository).should().save(doadorArgumentCaptor.capture());
-        Doador capturedDoador = doadorArgumentCaptor.getValue();
+        Doador doadorAtualizado = doadorService.atualizarDoador(request);
 
-        assertEquals(doador.getNome(), capturedDoador.getNome());
-        assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+        then(doadorRepository).should().save(doadorOriginal);
+        assertThat(doadorAtualizado.getGenero()).isEqualTo(request.genero());
+        assertThat(doadorAtualizado.getTipoSanguineo()).isEqualTo(request.tipoSanguineo());
+        assertThat(doadorAtualizado.getEmail()).isEqualTo(request.email());
+        assertThat(doadorAtualizado.getNome()).isEqualTo("Nome");
     }
-
 }

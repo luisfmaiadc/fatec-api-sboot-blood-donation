@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-public record DoadorResponse(@NotBlank String nomeCompleto, @NotBlank String genero,
+public record DoadorResponse(@NotBlank String nomeCompleto, @NotNull Character genero,
                              @NotNull LocalDate dataNascimento, @NotBlank String tipoSanguineo,
                              @NotBlank String email, @NotBlank String telefone, LocalDate ultimaDoacao, @NotNull Boolean ativo) {
 

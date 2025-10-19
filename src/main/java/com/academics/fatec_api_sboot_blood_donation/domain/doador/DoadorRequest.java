@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public record DoadorRequest(@NotBlank String nome, @NotBlank String sobrenome,
-                            @NotBlank @Size(min = 1, max = 1) String genero,
+                            @NotNull Character genero,
                             @NotNull LocalDate dataNascimento, @NotNull TipoSanguineo tipoSanguineo,
                             @NotBlank String email, @NotBlank @Size(min = 11, max = 11) String telefone) {
 }
