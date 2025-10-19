@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @Entity
-@Table(name = "doacao")
+@Table(name = "TbDoacao")
 public class Doacao {
 
     @Id
@@ -23,11 +23,11 @@ public class Doacao {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_doador")
+    @JoinColumn(name = "idDoador")
     private Doador doador;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_enfermeiro")
+    @JoinColumn(name = "idEnfermeiro")
     private Enfermeiro enfermeiro;
 
     private LocalDateTime dataDoacao = LocalDateTime.now();

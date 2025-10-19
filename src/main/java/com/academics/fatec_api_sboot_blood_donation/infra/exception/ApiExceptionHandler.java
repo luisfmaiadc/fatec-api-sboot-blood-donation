@@ -7,32 +7,34 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.List;
+
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleInvalidArgument(MethodArgumentNotValidException exception) {
+    public ResponseEntity<List<DadosErro>> handleInvalidArgument(MethodArgumentNotValidException exception) {
         var error = exception.getFieldErrors();
         return ResponseEntity.badRequest().body(error.stream().map(DadosErro::new).toList());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity handleEntityNotFound() {
+    public ResponseEntity<Void> handleEntityNotFound() {
         return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(IncompatibleBloodTypeException.class)
-    public ResponseEntity handleIncompatibleBloodType(IncompatibleBloodTypeException ex) {
+    public ResponseEntity<String> handleIncompatibleBloodType(IncompatibleBloodTypeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     @ExceptionHandler(AgeException.class)
-    public ResponseEntity hangleNotOldEnough(AgeException ex) {
+    public ResponseEntity<String> hangleNotOldEnough(AgeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     @ExceptionHandler(InactiveDonor.class)
-    public ResponseEntity handleInactiveDonor(InactiveDonor ex) {
+    public ResponseEntity<String> handleInactiveDonor(InactiveDonor ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
@@ -41,5 +43,4 @@ public class ApiExceptionHandler {
             this(fieldError.getField(), fieldError.getDefaultMessage());
         }
     }
-
 }

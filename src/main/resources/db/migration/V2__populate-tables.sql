@@ -1,5 +1,5 @@
 -- Inserts para a tabela doador (jogadores do Corinthians)
-INSERT INTO doador (nome, sobrenome, genero, data_nascimento, tipo_sanguineo, telefone, email, ativo)
+INSERT INTO TbDoador (nome, sobrenome, genero, dataNascimento, tipoSanguineo, telefone, email, ativo)
 VALUES
 ('Rennan', 'Javas', 'M', '1998-09-14', 'O+', '11987654340', 'rennan.javas@corinthians.com.br', 1),
 ('Rodrigo', 'Garro', 'M', '1997-02-15', 'A+', '11987654326', 'rodrigo.garro@corinthians.com.br', 1),
@@ -16,7 +16,7 @@ VALUES
 ('Yuri', 'Alberto', 'M', '2001-03-18', 'O-', '11987654325', 'yurialberto@corinthians.com.br', 1);
 
 -- Inserts para a tabela paciente (cantores sertanejos)
-INSERT INTO paciente (nome, sobrenome, genero, data_nascimento, tipo_sanguineo, telefone, email)
+INSERT INTO TbPaciente (nome, sobrenome, genero, dataNascimento, tipoSanguineo, telefone, email)
 VALUES
 ('Gusttavo', 'Lima', 'M', '1989-09-03', 'O+', '62987654321', 'gusttavo@sertanejo.com.br'),
 ('Jorge', 'Mateus', 'M', '1982-08-27', 'B+', '62987654323', 'jorge@sertanejo.com.br'),
@@ -24,7 +24,7 @@ VALUES
 ('Fernando', 'Sorocaba', 'M', '1984-09-17', 'O-', '62987654325', 'fernando@sertanejo.com.br');
 
 -- Inserts para a tabela enfermeiro
-INSERT INTO enfermeiro (nome, sobrenome, genero, telefone, email)
+INSERT INTO TbEnfermeiro (nome, sobrenome, genero, telefone, email)
 VALUES
 ('Camila', 'Silva', 'F', '11987654330', 'camila.silva@hospital.com.br'),
 ('Rafael', 'Costa', 'M', '11987654331', 'rafael.costa@hospital.com.br'),

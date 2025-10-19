@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @Entity
-@Table(name = "transfusao")
+@Table(name = "TbTransfusao")
 public class Transfusao {
 
     @Id
@@ -24,15 +24,15 @@ public class Transfusao {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_paciente")
+    @JoinColumn(name = "idPaciente")
     private Paciente paciente;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_doacao")
+    @JoinColumn(name = "idDoacao")
     private Doacao doacao;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_enfermeiro")
+    @JoinColumn(name = "idEnfermeiro")
     private Enfermeiro enfermeiro;
 
     private LocalDateTime dataTransfusao = LocalDateTime.now();
