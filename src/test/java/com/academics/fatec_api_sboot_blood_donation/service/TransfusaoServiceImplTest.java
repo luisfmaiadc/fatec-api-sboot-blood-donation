@@ -12,6 +12,7 @@ import com.academics.fatec_api_sboot_blood_donation.repository.DoacaoRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.EnfermeiroRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.PacienteRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.TransfusaoRepository;
+import com.academics.fatec_api_sboot_blood_donation.service.impl.TransfusaoServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +29,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class TransfusaoServiceTest {
+class TransfusaoServiceImplTest {
 
     @InjectMocks
-    private TransfusaoService transfusaoService;
+    private TransfusaoServiceImpl transfusaoService;
 
     @Mock
     private PacienteRepository pacienteRepository;

@@ -6,6 +6,7 @@ import com.academics.fatec_api_sboot_blood_donation.domain.doador.UpdateDoadorRe
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo;
 import com.academics.fatec_api_sboot_blood_donation.infra.exception.AgeException;
 import com.academics.fatec_api_sboot_blood_donation.repository.DoadorRepository;
+import com.academics.fatec_api_sboot_blood_donation.service.impl.DoadorServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,10 +24,10 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class DoadorServiceTest {
+class DoadorServiceImplTest {
 
     @InjectMocks
-    private DoadorService doadorService;
+    private DoadorServiceImpl doadorService;
 
     @Mock
     private DoadorRepository doadorRepository;

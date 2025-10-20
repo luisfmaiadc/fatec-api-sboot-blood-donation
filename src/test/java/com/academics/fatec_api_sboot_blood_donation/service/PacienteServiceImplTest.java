@@ -4,6 +4,7 @@ import com.academics.fatec_api_sboot_blood_donation.domain.paciente.Paciente;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.PacienteRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.UpdatePacienteRequest;
 import com.academics.fatec_api_sboot_blood_donation.repository.PacienteRepository;
+import com.academics.fatec_api_sboot_blood_donation.service.impl.PacienteServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,10 +25,10 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PacienteServiceTest {
+class PacienteServiceImplTest {
 
     @InjectMocks
-    private PacienteService pacienteService;
+    private PacienteServiceImpl pacienteService;
 
     @Mock
     private PacienteRepository pacienteRepository;

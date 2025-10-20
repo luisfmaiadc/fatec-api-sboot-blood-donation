@@ -8,6 +8,7 @@ import com.academics.fatec_api_sboot_blood_donation.infra.exception.InactiveDono
 import com.academics.fatec_api_sboot_blood_donation.repository.DoacaoRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.DoadorRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.EnfermeiroRepository;
+import com.academics.fatec_api_sboot_blood_donation.service.impl.DoacaoServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,10 +25,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class DoacaoServiceTest {
+class DoacaoServiceImplTest {
 
     @InjectMocks
-    private DoacaoService doacaoService;
+    private DoacaoServiceImpl doacaoService;
 
     @Mock
     private DoadorRepository doadorRepository;
