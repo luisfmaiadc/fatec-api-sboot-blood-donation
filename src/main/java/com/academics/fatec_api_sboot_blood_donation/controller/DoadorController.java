@@ -25,17 +25,17 @@ public class DoadorController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<DoadorResponse> cadastrarDoador(@RequestBody @Valid DoadorRequest request) {
+    public ResponseEntity<DoadorResponse> cadastrarDoador(@RequestBody @Valid DoadorRequest request, UriComponentsBuilder uriComponentsBuilder) {
         Doador doador = doadorService.cadastrarDoador(request);
-        URI uri = UriComponentsBuilder.fromPath("/doador/{id}").buildAndExpand(doador.getId()).toUri();
+        URI uri = uriComponentsBuilder.path("/doador/{id}").buildAndExpand(doador.getId()).toUri();
         return ResponseEntity.created(uri).body(new DoadorResponse(doador));
     }
 
-    @GetMapping
-    public ResponseEntity<List<DoadorResponse>> pesquisarPorTipoSanguineo(@RequestParam TipoSanguineo tipoSanguineo) {
-        List<Doador> doadorList = doadorService.pesquisarPorTipoSanguineo(tipoSanguineo);
-        List<DoadorResponse> responseList = doadorList.stream().map(DoadorResponse::new).toList();
-        return ResponseEntity.ok(responseList);
+    @PutMapping
+    @Transactional
+    public ResponseEntity<DoadorResponse> atualizarDoador(@RequestBody @Valid UpdateDoadorRequest request) {
+        Doador doador = doadorService.atualizarDoador(request);
+        return ResponseEntity.ok(new DoadorResponse(doador));
     }
 
     @DeleteMapping("/{id}")
@@ -45,10 +45,10 @@ public class DoadorController {
          return ResponseEntity.noContent().build();
     }
 
-    @PutMapping
-    @Transactional
-    public ResponseEntity<DoadorResponse> atualizarDoador(@RequestBody @Valid UpdateDoadorRequest request) {
-        Doador doador = doadorService.atualizarDoador(request);
-        return ResponseEntity.ok(new DoadorResponse(doador));
+    @GetMapping
+    public ResponseEntity<List<DoadorResponse>> pesquisarPorTipoSanguineo(@RequestParam TipoSanguineo tipoSanguineo) {
+        List<Doador> doadorList = doadorService.pesquisarPorTipoSanguineo(tipoSanguineo);
+        List<DoadorResponse> responseList = doadorList.stream().map(DoadorResponse::new).toList();
+        return ResponseEntity.ok(responseList);
     }
 }

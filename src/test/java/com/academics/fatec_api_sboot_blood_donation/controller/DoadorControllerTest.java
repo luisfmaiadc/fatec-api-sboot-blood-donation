@@ -124,11 +124,9 @@ class DoadorControllerTest {
         UpdateDoadorRequest request = new UpdateDoadorRequest(
                 doadorId,
                 'M', 
-                null, 
-                null, 
-                null,
+                true,
                 "novoemail@teste.com", 
-                null
+                "11987654321"
         );
         
         Doador doadorAtualizado = new Doador();
@@ -137,9 +135,10 @@ class DoadorControllerTest {
         doadorAtualizado.setSobrenome("Sobrenome Original");
         doadorAtualizado.setGenero(request.genero());
         doadorAtualizado.setEmail(request.email()); 
+        doadorAtualizado.setTelefone(request.telefone());
+        doadorAtualizado.setAtivo(request.ativo());
         doadorAtualizado.setDataNascimento(LocalDate.of(1995, 1, 1));
         doadorAtualizado.setTipoSanguineo(TipoSanguineo.O_POSITIVO);
-        doadorAtualizado.setAtivo(true);
 
         when(doadorService.atualizarDoador(any(UpdateDoadorRequest.class))).thenReturn(doadorAtualizado);
 

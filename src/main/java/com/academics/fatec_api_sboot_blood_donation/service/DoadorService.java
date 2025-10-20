@@ -54,17 +54,6 @@ public class DoadorService {
             doador.setGenero(request.genero());
         }
 
-        if (request.dataNascimento() != null) {
-            if (!(Period.between(request.dataNascimento(), LocalDate.now()).getYears() >= 16)) {
-                throw new AgeException("Nova idade fornecida menor que 16 anos.");
-            }
-            doador.setDataNascimento(request.dataNascimento());
-        }
-
-        if (request.tipoSanguineo() != null) {
-            doador.setTipoSanguineo(request.tipoSanguineo());
-        }
-
         if (request.ativo() != null) {
             doador.setAtivo(request.ativo());
         }

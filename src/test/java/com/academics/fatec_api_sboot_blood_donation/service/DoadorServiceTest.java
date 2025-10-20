@@ -104,9 +104,7 @@ class DoadorServiceTest {
         var request = new UpdateDoadorRequest(
                 doadorId,
                 'F',
-                null,
-                TipoSanguineo.B_NEGATIVO,
-                null,
+                false,
                 "novo.email@teste.com",
                 null
         );
@@ -118,8 +116,9 @@ class DoadorServiceTest {
 
         then(doadorRepository).should().save(doadorOriginal);
         assertThat(doadorAtualizado.getGenero()).isEqualTo(request.genero());
-        assertThat(doadorAtualizado.getTipoSanguineo()).isEqualTo(request.tipoSanguineo());
         assertThat(doadorAtualizado.getEmail()).isEqualTo(request.email());
+        assertThat(doadorAtualizado.getAtivo()).isEqualTo(request.ativo());
         assertThat(doadorAtualizado.getNome()).isEqualTo("Nome");
+        assertThat(doadorAtualizado.getTipoSanguineo()).isEqualTo(TipoSanguineo.O_POSITIVO);
     }
 }
