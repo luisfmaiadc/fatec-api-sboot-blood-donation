@@ -8,22 +8,20 @@ import com.academics.fatec_api_sboot_blood_donation.infra.exception.InactiveDono
 import com.academics.fatec_api_sboot_blood_donation.repository.DoacaoRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.DoadorRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.EnfermeiroRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DoacaoServiceTest {
@@ -35,55 +33,60 @@ class DoacaoServiceTest {
     private DoadorRepository doadorRepository;
 
     @Mock
-    private Doador doador;
-
-    @Mock
-    private Enfermeiro enfermeiro;
-
-    @Mock
     private EnfermeiroRepository enfermeiroRepository;
-
-    @Captor
-    private ArgumentCaptor<Doacao> doacaoArgumentCaptor;
 
     @Mock
     private DoacaoRepository doacaoRepository;
 
     @Test
-    void cadastrarDoacao() {
-        // Arrange
-        DoacaoRequest request = new DoacaoRequest(1, 1);
-        given(doadorRepository.getReferenceById(request.idDoador())).willReturn(doador);
-        given(doador.getAtivo()).willReturn(true);
-        given(enfermeiroRepository.getReferenceById(request.idEnfermeiro())).willReturn(enfermeiro);
+    @DisplayName("Deve cadastrar uma doação com sucesso para um doador ativo")
+    void cadastrarDoacaoCenario1() {
+        var request = new DoacaoRequest(1, 1);
+        var doador = new Doador();
+        doador.setId(request.idDoador());
+        doador.setAtivo(true);
 
-        Doacao doacao = new Doacao(doador, enfermeiro);
-        given(doacaoRepository.save(doacaoArgumentCaptor.capture())).willReturn(doacao);
+        var enfermeiro = new Enfermeiro();
+        enfermeiro.setId(request.idEnfermeiro());
 
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+        when(doadorRepository.getReferenceById(request.idDoador())).thenReturn(doador);
+        when(enfermeiroRepository.getReferenceById(request.idEnfermeiro())).thenReturn(enfermeiro);
+        when(doacaoRepository.save(any(Doacao.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        //Act
-        ResponseEntity response = doacaoService.cadastrarDoacao(request, uriBuilder);
-        then(doacaoRepository).should().save(doacaoArgumentCaptor.capture());
-        Doacao capturedDoacao = doacaoArgumentCaptor.getValue();
+        Doacao doacaoSalva = doacaoService.cadastrarDoacao(request);
 
-        //Assert
-        assertEquals(doacao.getDoador(), capturedDoacao.getDoador());
-        assertEquals(doacao.getEnfermeiro(), capturedDoacao.getEnfermeiro());
-        assertEquals(HttpStatusCode.valueOf(201), response.getStatusCode());
+        verify(doacaoRepository).save(any(Doacao.class));
+        assertThat(doacaoSalva).isNotNull();
+        assertThat(doacaoSalva.getDoador()).isEqualTo(doador);
+        assertThat(doacaoSalva.getEnfermeiro()).isEqualTo(enfermeiro);
+        assertThat(doador.getUltimaDoacao()).isEqualTo(LocalDate.now());
     }
 
     @Test
-    @DisplayName("Verifica se não lança Exception se doador está ativo.")
-    void verificarDoadorAtivo() {
-        given(doador.getAtivo()).willReturn(true);
-        assertDoesNotThrow(() -> doacaoService.verificarDoadorAtivo(doador));
+    @DisplayName("Deve lançar InactiveDonor ao tentar cadastrar doação para doador inativo")
+    void cadastrarDoacaoCenario2() {
+        var request = new DoacaoRequest(1, 1);
+        var doadorInativo = new Doador();
+        doadorInativo.setId(request.idDoador());
+        doadorInativo.setAtivo(false);
+
+        when(doadorRepository.getReferenceById(request.idDoador())).thenReturn(doadorInativo);
+
+        assertThatThrownBy(() -> doacaoService.cadastrarDoacao(request))
+                .isInstanceOf(InactiveDonor.class)
+                .hasMessage("Cadastro de doador informado não está disponível para novas doações.");
+
+        verify(enfermeiroRepository, never()).getReferenceById(any());
+        verify(doacaoRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("Verifica se lança Exception se doador está inativo.")
-    void verificarDoadorAtivoException() {
-        given(doador.getAtivo()).willReturn(false);
-        assertThrows(InactiveDonor.class, () -> doacaoService.verificarDoadorAtivo(doador));
+    @DisplayName("Deve repassar EntityNotFoundException se o doador não existir")
+    void cadastrarDoacaoCenario3() {
+        var request = new DoacaoRequest(999, 1);
+        when(doadorRepository.getReferenceById(request.idDoador())).thenThrow(EntityNotFoundException.class);
+
+        assertThatThrownBy(() -> doacaoService.cadastrarDoacao(request))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 }
