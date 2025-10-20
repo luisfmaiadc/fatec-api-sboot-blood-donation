@@ -4,22 +4,22 @@ import com.academics.fatec_api_sboot_blood_donation.domain.paciente.Paciente;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.PacienteRequest;
 import com.academics.fatec_api_sboot_blood_donation.domain.paciente.UpdatePacienteRequest;
 import com.academics.fatec_api_sboot_blood_donation.repository.PacienteRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static com.academics.fatec_api_sboot_blood_donation.domain.paciente.TipoSanguineo.A_POSITIVO;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 
@@ -32,73 +32,77 @@ class PacienteServiceTest {
     @Mock
     private PacienteRepository pacienteRepository;
 
-    @Captor
-    private ArgumentCaptor<Paciente> pacienteArgumentCaptor;
-
-    @Mock
-    private Paciente paciente;
-
-    @Mock
-    private List<Paciente> pacienteList;
-
     @Test
-    void cadastrarPaciente() {
-        PacienteRequest request = new PacienteRequest(
+    @DisplayName("Deve cadastrar um paciente com sucesso")
+    void cadastrarPacienteCenario1() {
+        var request = new PacienteRequest(
                 "teste",
                 "teste",
-                "M",
-                LocalDate.of(2000, 2,2),
+                'M',
+                LocalDate.of(2000, 2, 2),
                 A_POSITIVO,
                 "teste@teste.com",
                 "11111111111"
         );
 
-        Paciente paciente = new Paciente(request);
+        when(pacienteRepository.save(any(Paciente.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        when(pacienteRepository.save(pacienteArgumentCaptor.capture())).thenReturn(paciente);
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+        Paciente pacienteSalvo = pacienteService.cadastrarPaciente(request);
 
-        ResponseEntity response = pacienteService.cadastrarPaciente(request, uriBuilder);
-        then(pacienteRepository).should().save(pacienteArgumentCaptor.capture());
-        Paciente capturedPaciente = pacienteArgumentCaptor.getValue();
-
-        assertEquals(paciente.getTipoSanguineo(), capturedPaciente.getTipoSanguineo());
-        assertEquals(HttpStatusCode.valueOf(201), response.getStatusCode());
+        then(pacienteRepository).should().save(any(Paciente.class));
+        assertThat(pacienteSalvo).isNotNull();
+        assertThat(pacienteSalvo.getNome()).isEqualTo(request.nome());
+        assertThat(pacienteSalvo.getEmail()).isEqualTo(request.email());
     }
 
     @Test
-    void atualizarPaciente() {
-        UpdatePacienteRequest request = new UpdatePacienteRequest(
-                1,
-                "teste",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+    @DisplayName("Deve atualizar os dados de um paciente com sucesso")
+    void atualizarPacienteCenario1() {
+        Integer pacienteId = 1;
+        var request = new UpdatePacienteRequest(
+                pacienteId,
+                'F',
+                "novo.email@teste.com",
+                "11999998888"
         );
 
-        paciente.setNome("teste");
-        paciente.setTipoSanguineo(A_POSITIVO);
-        when(pacienteRepository.getReferenceById(request.idPaciente())).thenReturn(paciente);
-        when(pacienteRepository.save(pacienteArgumentCaptor.capture())).thenReturn(paciente);
+        var pacienteOriginal = new Paciente(pacienteId, "Nome", "Original", 'M', LocalDate.now().minusYears(30), A_POSITIVO, "original@email.com", "55555555555", null);
+        when(pacienteRepository.getReferenceById(pacienteId)).thenReturn(pacienteOriginal);
 
-        ResponseEntity response = pacienteService.atualizarPaciente(request);
-        then(pacienteRepository).should().save(pacienteArgumentCaptor.capture());
-        Paciente capturedPaciente = pacienteArgumentCaptor.getValue();
+        Paciente pacienteAtualizado = pacienteService.atualizarPaciente(request);
 
-        assertEquals(paciente.getNome(), capturedPaciente.getNome());
-        assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+        then(pacienteRepository).should().save(pacienteOriginal);
+        assertThat(pacienteAtualizado.getNome()).isEqualTo("Nome");
+        assertThat(pacienteAtualizado.getSobrenome()).isEqualTo("Original");
+        assertThat(pacienteAtualizado.getGenero()).isEqualTo('F');
+        assertThat(pacienteAtualizado.getEmail()).isEqualTo("novo.email@teste.com");
+        assertThat(pacienteAtualizado.getTelefone()).isEqualTo("11999998888");
     }
 
     @Test
-    void pesquisarPacientes() {
-        when(pacienteRepository.findAll()).thenReturn(pacienteList);
-        ResponseEntity response = pacienteService.pesquisarPacientes();
+    @DisplayName("Deve lançar EntityNotFoundException ao tentar atualizar paciente inexistente")
+    void atualizarPacienteCenario2() {
+        final Integer pacienteIdInexistente = 999;
+        var request = new UpdatePacienteRequest(pacienteIdInexistente, 'F', "email@novo.com",  "11999998877");
 
-        assertNotNull(response.getBody());
-        assertEquals(pacienteList.size(), ((List<?>) response.getBody()).size());
-        assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+        when(pacienteRepository.getReferenceById(pacienteIdInexistente)).thenThrow(new EntityNotFoundException("Unable to find com.academics.fatec_api_sboot_blood_donation.domain.paciente.Paciente with id " + pacienteIdInexistente));
+
+        assertThatThrownBy(() -> pacienteService.atualizarPaciente(request))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Paciente não encontrado com o ID: " + pacienteIdInexistente);
+    }
+
+    @Test
+    @DisplayName("Deve retornar uma lista de pacientes")
+    void pesquisarPacientesCenario1() {
+        var paciente1 = new Paciente(1, "Jorge", "Mateus", 'M', LocalDate.of(1982, 8, 27), A_POSITIVO, "jorge@sertanejo.com.br", "62987654323", null);
+        List<Paciente> pacientesMock = Collections.singletonList(paciente1);
+        when(pacienteRepository.findAll()).thenReturn(pacientesMock);
+
+        List<Paciente> resultado = pacienteService.pesquisarPacientes();
+
+        assertThat(resultado).isNotNull();
+        assertThat(resultado).hasSize(1);
+        assertThat(resultado.getFirst().getNome()).isEqualTo("Jorge");
     }
 }
