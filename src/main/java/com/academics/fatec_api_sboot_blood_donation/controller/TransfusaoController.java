@@ -1,6 +1,8 @@
 package com.academics.fatec_api_sboot_blood_donation.controller;
 
+import com.academics.fatec_api_sboot_blood_donation.domain.transfusao.Transfusao;
 import com.academics.fatec_api_sboot_blood_donation.domain.transfusao.TransfusaoRequest;
+import com.academics.fatec_api_sboot_blood_donation.domain.transfusao.TransfusaoResponse;
 import com.academics.fatec_api_sboot_blood_donation.service.TransfusaoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
+
 @RestController
 @RequestMapping("/transfusao")
 public class TransfusaoController {
@@ -21,8 +25,10 @@ public class TransfusaoController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity cadastrarTransfusao(@RequestBody @Valid TransfusaoRequest request, UriComponentsBuilder uriComponentsBuilder) {
-        return transfusaoService.cadastrarTranfusao(request, uriComponentsBuilder);
+    public ResponseEntity<TransfusaoResponse> cadastrarTransfusao(@RequestBody @Valid TransfusaoRequest request, UriComponentsBuilder uriComponentsBuilder) {
+        Transfusao transfusao = transfusaoService.cadastrarTranfusao(request);
+        TransfusaoResponse response = new TransfusaoResponse(transfusao);
+        URI uri = uriComponentsBuilder.path("/transfusao/{id}").buildAndExpand(transfusao.getId()).toUri();
+        return ResponseEntity.created(uri).body(response);
     }
-
 }

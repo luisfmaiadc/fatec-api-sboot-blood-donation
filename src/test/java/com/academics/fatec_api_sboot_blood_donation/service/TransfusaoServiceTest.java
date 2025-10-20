@@ -12,20 +12,19 @@ import com.academics.fatec_api_sboot_blood_donation.repository.DoacaoRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.EnfermeiroRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.PacienteRepository;
 import com.academics.fatec_api_sboot_blood_donation.repository.TransfusaoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.then;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,57 +43,77 @@ class TransfusaoServiceTest {
     private EnfermeiroRepository enfermeiroRepository;
 
     @Mock
-    private Paciente paciente;
-
-    @Mock
-    private Doacao doacao;
-
-    @Mock
-    private Enfermeiro enfermeiro;
-
-    @Mock
     private TransfusaoRepository transfusaoRepository;
 
-    @Captor
-    private ArgumentCaptor<Transfusao> transfusaoArgumentCaptor;
-
-    @Mock
-    private Doador doador;
-
     @Test
-    void cadastrarTransfusao() {
-        TransfusaoRequest request = new TransfusaoRequest(1, 1, 1);
+    @DisplayName("Deve cadastrar uma transfusão com sucesso quando os tipos sanguíneos são compatíveis")
+    void cadastrarTransfusaoCenario1() {
+        var request = new TransfusaoRequest(1, 2, 3);
+
+        var paciente = new Paciente();
+        paciente.setId(request.idPaciente());
+        paciente.setTipoSanguineo(TipoSanguineo.A_POSITIVO);
+
+        var doador = new Doador();
+        doador.setTipoSanguineo(TipoSanguineo.O_NEGATIVO);
+
+        var doacao = new Doacao();
+        doacao.setId(request.idDoacao());
+        doacao.setDoador(doador);
+
+        var enfermeiro = new Enfermeiro();
+        enfermeiro.setId(request.idEnfermeiro());
 
         when(pacienteRepository.getReferenceById(request.idPaciente())).thenReturn(paciente);
         when(doacaoRepository.getReferenceById(request.idDoacao())).thenReturn(doacao);
         when(enfermeiroRepository.getReferenceById(request.idEnfermeiro())).thenReturn(enfermeiro);
-        when(paciente.getTipoSanguineo()).thenReturn(TipoSanguineo.A_NEGATIVO);
-        when(doacao.getDoador()).thenReturn(doador);
-        when(doador.getTipoSanguineo()).thenReturn(TipoSanguineo.A_NEGATIVO);
+        when(transfusaoRepository.save(any(Transfusao.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Transfusao transfusao = new Transfusao(paciente, doacao, enfermeiro);
-        when(transfusaoRepository.save(transfusaoArgumentCaptor.capture())).thenReturn(transfusao);
+        Transfusao transfusaoSalva = transfusaoService.cadastrarTranfusao(request);
 
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-
-        ResponseEntity response = transfusaoService.cadastrarTranfusao(request, uriBuilder);
-        then(transfusaoRepository).should().save(transfusaoArgumentCaptor.capture());
-        Transfusao transfusaoCaptured = transfusaoArgumentCaptor.getValue();
-
-        assertEquals(transfusao.getDoacao().getDoador().getTipoSanguineo(), transfusaoCaptured.getDoacao().getDoador().getTipoSanguineo());
-        assertEquals(HttpStatusCode.valueOf(201), response.getStatusCode());
+        verify(transfusaoRepository).save(any(Transfusao.class));
+        assertThat(transfusaoSalva).isNotNull();
+        assertThat(transfusaoSalva.getPaciente()).isEqualTo(paciente);
+        assertThat(transfusaoSalva.getDoacao()).isEqualTo(doacao);
+        assertThat(transfusaoSalva.getEnfermeiro()).isEqualTo(enfermeiro);
     }
 
     @Test
-    @DisplayName("Verifica se não lança Exception se o tipo sanguinéo for compatível.")
-    void verificarTipoSanguineoCorreto() {
-        assertDoesNotThrow(() -> transfusaoService.verificarTipoSanguineo("A-", "A+"));
+    @DisplayName("Deve lançar IncompatibleBloodTypeException quando os tipos sanguíneos são incompatíveis")
+    void cadastrarTransfusaoCenario2() {
+        var request = new TransfusaoRequest(1, 2, 3);
+
+        var paciente = new Paciente();
+        paciente.setTipoSanguineo(TipoSanguineo.O_NEGATIVO);
+
+        var doador = new Doador();
+        doador.setTipoSanguineo(TipoSanguineo.AB_POSITIVO);
+
+        var doacao = new Doacao();
+        doacao.setDoador(doador);
+
+        when(pacienteRepository.getReferenceById(request.idPaciente())).thenReturn(paciente);
+        when(doacaoRepository.getReferenceById(request.idDoacao())).thenReturn(doacao);
+
+        assertThatThrownBy(() -> transfusaoService.cadastrarTranfusao(request))
+                .isInstanceOf(IncompatibleBloodTypeException.class)
+                .hasMessage("Tipo sanguíneo incompatível!");
+
+        verify(transfusaoRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("Verifica se lança Exception se o tipo sanguinéo for incompatível.")
-    void verificarTipoSanguineoIncorreto() {
-        assertThrows(IncompatibleBloodTypeException.class, () -> transfusaoService.verificarTipoSanguineo("AB+", "0-"));
-    }
+    @DisplayName("Deve repassar EntityNotFoundException se o paciente não existir")
+    void cadastrarTransfusaoCenario3() {
+        var request = new TransfusaoRequest(999, 2, 3);
 
+        when(pacienteRepository.getReferenceById(request.idPaciente())).thenThrow(EntityNotFoundException.class);
+
+        assertThatThrownBy(() -> transfusaoService.cadastrarTranfusao(request))
+                .isInstanceOf(EntityNotFoundException.class);
+
+        verify(doacaoRepository, never()).getReferenceById(any());
+        verify(enfermeiroRepository, never()).getReferenceById(any());
+        verify(transfusaoRepository, never()).save(any());
+    }
 }
